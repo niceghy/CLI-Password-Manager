@@ -9,13 +9,13 @@ public class PasswordManager {
     // Global Variables
     public static Scanner sc = new Scanner(System.in);
 
-    public static HashMap<String, String[]> localList = new HashMap<>(); // Save encrypted passwords in sesssion too for easy retrieval
+    public static HashMap<String, String[]> localList = new HashMap<>(); // Save encrypted passwords in session for easy retrieval
     public static String username;
     public static String masterPassword;
     public static byte[] salt; // Random salt generated when the user first created their account based off their master password
 
     // File Paths
-    public static String accountCredentials = "accountCredentials.csv";
+    public static String accountCredentials = "credentials.csv";
     public static String loginsFile = "logins.csv";
 
     /*
@@ -27,8 +27,8 @@ public class PasswordManager {
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256); // Creates instructions on how to make the key
         SecretKey tmp = factory.generateSecret(spec); // Creates the key in a raw format
         return new SecretKeySpec(tmp.getEncoded(), "AES"); // Converts into AES format and returns it
-    }
-
+    }   
+    
     /*
     Displays the page to sign into the user's account
     */
@@ -60,6 +60,7 @@ public class PasswordManager {
             if (username.equals(credentials[0]) && masterPassword.equals(credentials[1])) {
                 salt = Base64.getDecoder().decode(credentials[2]); // Decode the salt using the master password
                 System.out.println("Login Successful");
+                displayOptions();
             } else {
                 System.out.println("Incorrect Login Details");
                 loginPage();
@@ -820,19 +821,33 @@ public class PasswordManager {
     public static void main(String[] args) {
         System.out.println("====PASSWORD MANAGER====");
         System.out.println("This program manages and saves your online credentials");
-
-        // Check if the file exists and see if a new account needs to be made
-        File file = new File(accountCredentials);
         
-        if (file.exists() && file.isFile()) {
-            loginPage();
-        } else {
-            accountCreation();
-        }
+        while (true) {
+            try {
+                System.out.println("\n1: Login");
+                System.out.println("2: Create New Account");
+                System.out.println("3: Close Application");
 
-        // Pull logins and display the main menu
-        pullLogins();
-        displayOptions();
+                System.out.print("\nOption: ");
+                int input = sc.nextInt();
+
+                if (input == 1) {
+                    loginPage();
+                    break;
+                } else if (input == 2) {
+                    accountCreation();
+                    break;
+                } else if (input == 3) {
+                    break;
+                } else {
+                    System.out.println("Choose an option (number) from 1-2");
+                    sc.nextLine();
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Choose an option (number) from 1-2");
+                sc.nextLine();
+            }
+        }
 
         sc.close();
     }
