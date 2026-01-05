@@ -1,9 +1,6 @@
 import java.io.*;
 import java.security.*;
-import java.security.spec.*;
 import java.util.*;
-import javax.crypto.*;
-import javax.crypto.spec.*;
 
 // TODO: Fix encryption unreadable issue when master password is changed
 

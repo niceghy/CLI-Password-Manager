@@ -469,7 +469,6 @@ public class User {
             BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/credentials.csv"));
             ArrayList<String> lineList = new ArrayList<>();
             String line;
-            int i = 0;
             
             // Read through the file and store to an arraylist
             while ((line = reader.readLine()) != null) {
@@ -481,8 +480,6 @@ public class User {
                 } else {
                     lineList.add(line);
                 }
-                
-                i++;
             }
 
             reader.close();
