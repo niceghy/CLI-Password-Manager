@@ -2,8 +2,6 @@ import java.io.*;
 import java.security.*;
 import java.util.*;
 
-// TODO: Fix encryption unreadable issue when master password is changed
-
 public class PasswordManager {
     // Global Variables
     public static Scanner sc = new Scanner(System.in);
