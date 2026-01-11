@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.*;
 import javax.crypto.Cipher;
@@ -19,9 +20,9 @@ public class User {
     private String passwordHash;
     private String masterPassword;
     private String userDirectory;
-    private byte[] salt;
+    private final byte[] salt;
 
-    private HashMap<String, String> securityQuestions;
+    private final HashMap<String, String> securityQuestions;
     private HashMap<String, String[]> localList = new HashMap<>();
 
     // Create new user data
@@ -90,10 +91,10 @@ public class User {
             File file = new File(userDirectory + "/passwords.csv");
             file.createNewFile();
             
-            BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/passwords.csv", true));
-            writer.write(itemNameAndUsername[0] + "," + itemNameAndUsername[1] + "," + loginPassword);
-            writer.newLine();
-            writer.close();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/passwords.csv", true))) {
+                writer.write(itemNameAndUsername[0] + "," + itemNameAndUsername[1] + "," + loginPassword);
+                writer.newLine();
+            }
             
             System.out.println("\nLogin saved successfully");
         } catch (IOException e) {
@@ -173,30 +174,28 @@ public class User {
         localList.remove(encrypt(itemName) + ":" + encrypt(username));
 
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/passwords.csv"));
-            ArrayList<String> lines = new ArrayList<>();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                String[] credentials = line.split(",");
-                String decItemName = decrypt(credentials[0]);
-                String decUsername = decrypt(credentials[1]);
-
-                if (!(itemName.equals(decItemName) && username.equals(decUsername))) {
-                    lines.add(line);
+            ArrayList<String> lines;
+            
+            try (BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/passwords.csv"))) {
+                lines = new ArrayList<>();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] credentials = line.split(",");
+                    String decItemName = decrypt(credentials[0]);
+                    String decUsername = decrypt(credentials[1]);
+                    
+                    if (!(itemName.equals(decItemName) && username.equals(decUsername))) {
+                        lines.add(line);
+                    }
                 }
             }
 
-            reader.close();
-
-            BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/passwords.csv"));
-            
-            for (String writeLine : lines) {
-                writer.write(writeLine);
-                writer.newLine();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/passwords.csv"))) {
+                for (String writeLine : lines) {
+                    writer.write(writeLine);
+                    writer.newLine();
+                }
             }
-
-            writer.close();
         } catch (IOException e) {
             System.out.println("An error occurred while deleting login. Please try again");
             PasswordManager.displayOptions();
@@ -208,24 +207,25 @@ public class User {
         try {
             // Read all logins except the one we're updating
             ArrayList<String> lines = new ArrayList<>();
-            BufferedReader reader = new BufferedReader(
-                new FileReader(userDirectory + "/passwords.csv")
-            );
-            String line;
-            
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                String decItem = decrypt(parts[0]);
-                String decUser = decrypt(parts[1]);
+
+            try (BufferedReader reader = new BufferedReader(
+                    new FileReader(userDirectory + "/passwords.csv")
+            )) {
+                String line;
                 
-                // Skip the old login
-                if (decItem.equals(oldItemName) && decUser.equals(oldUsername)) {
-                    continue;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(",");
+                    String decItem = decrypt(parts[0]);
+                    String decUser = decrypt(parts[1]);
+                    
+                    // Skip the old login
+                    if (decItem.equals(oldItemName) && decUser.equals(oldUsername)) {
+                        continue;
+                    }
+                    
+                    lines.add(line);
                 }
-                
-                lines.add(line);
             }
-            reader.close();
             
             // Add the updated login
             String encryptedItem = encrypt(newItemName);
@@ -233,14 +233,13 @@ public class User {
             String encryptedPassword = encrypt(newPassword);
             lines.add(encryptedItem + "," + encryptedUsername + "," + encryptedPassword);
             
-            // Rewrite everything
-            BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/passwords.csv"));
-
-            for (String l : lines) {
-                writer.write(l);
-                writer.newLine();
+            try ( // Rewrite everything
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/passwords.csv"))) {
+                for (String l : lines) {
+                    writer.write(l);
+                    writer.newLine();
+                }
             }
-            writer.close();
             
             // Update local hashmap
             String oldKey = encrypt(oldItemName) + ":" + encrypt(oldUsername);
@@ -263,7 +262,7 @@ public class User {
             byte[] hash = factory.generateSecret(spec).getEncoded();
             
             return Base64.getEncoder().encodeToString(hash);
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new RuntimeException("Error hashing password", e);
         }
     }
@@ -423,37 +422,37 @@ public class User {
             
             // Re-encrypt passwords with new master password (if any exist)
             if (!decryptedLogins.isEmpty()) {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/passwords.csv"));
-                
-                for (String[] login : decryptedLogins) {
-                    String encryptedItemName = encrypt(login[0]);
-                    String encryptedUsername = encrypt(login[1]);
-                    String encryptedPassword = encrypt(login[2]);
-                    
-                    writer.write(encryptedItemName + "," + encryptedUsername + "," + encryptedPassword);
-                    writer.newLine();
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/passwords.csv"))) {
+                    for (String[] login : decryptedLogins) {
+                        String encryptedItemName = encrypt(login[0]);
+                        String encryptedUsername = encrypt(login[1]);
+                        String encryptedPassword = encrypt(login[2]);
+                        
+                        writer.write(encryptedItemName + "," + encryptedUsername + "," + encryptedPassword);
+                        writer.newLine();
+                    }
                 }
-                writer.close();
             }
             
             // Update credentials.csv with new password hash
             ArrayList<String> credList = new ArrayList<>();
-            BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/credentials.csv"));
-            String line;
             
-            while ((line = reader.readLine()) != null) {
-                credList.add(line);
+            try (BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/credentials.csv"))) {
+                String line;
+                
+                while ((line = reader.readLine()) != null) {
+                    credList.add(line);
+                }
             }
-            reader.close();
             
             credList.set(0, username + "," + this.passwordHash + "," + Base64.getEncoder().encodeToString(salt));
             
-            BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/credentials.csv"));
-            for (String credLine : credList) {
-                writer.write(credLine);
-                writer.newLine();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/credentials.csv"))) {
+                for (String credLine : credList) {
+                    writer.write(credLine);
+                    writer.newLine();
+                }
             }
-            writer.close();
             
             // Update local HashMap with new encrypted keys
             HashMap<String, String[]> newList = new HashMap<>();
@@ -480,25 +479,26 @@ public class User {
         try { // Replace the username in the credentials.csv file with the new one
             String oldDirectory = userDirectory;
             ArrayList<String> lineList = new ArrayList<>();
-            BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/credentials.csv"));
-            String line;
             
-            // Read the file and store it all into an arraylist
-            while ((line = reader.readLine()) != null) {
-                lineList.add(line);
+            try (BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/credentials.csv"))) {
+                String line;
+                
+                // Read the file and store it all into an arraylist
+                while ((line = reader.readLine()) != null) {
+                    lineList.add(line);
+                }
             }
-            reader.close();
 
             // Modify the master password in the arraylist
             lineList.set(0, newUsername + "," + passwordHash + "," + Base64.getEncoder().encodeToString(salt));
 
-            // Rewrite everything back into the file with the new password
-            BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/credentials.csv"));
-            for (String i : lineList) {
-                writer.write(i);
-                writer.newLine();
+            try ( // Rewrite everything back into the file with the new password
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/credentials.csv"))) {
+                for (String i : lineList) {
+                    writer.write(i);
+                    writer.newLine();
+                }
             }
-            writer.close();
 
             this.username = newUsername;
             this.userDirectory = "users/" + newUsername;
@@ -520,33 +520,33 @@ public class User {
     Changes a security question answer
     */
     public void changeSecurityAnswer(String question, String newAnswer) {
-        try { // Replace the security question answers in the credentials.csv file with new ones
-            BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/credentials.csv"));
-            ArrayList<String> lineList = new ArrayList<>();
-            String line;
-            
-            // Read through the file and store to an arraylist
-            while ((line = reader.readLine()) != null) {
-                String[] questionAndAnswer = line.split(",");
+        try {
+            ArrayList<String> lineList;
 
-                if (questionAndAnswer[0].equals(question)) {
-                    // Modify the security question answers with new ones
-                    lineList.add(questionAndAnswer[0] + "," + newAnswer);
-                } else {
-                    lineList.add(line);
+            try ( // Replace the security question answers in the credentials.csv file with new ones
+                    BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/credentials.csv"))) {
+                lineList = new ArrayList<>();
+                String line;
+                // Read through the file and store to an arraylist
+                while ((line = reader.readLine()) != null) {
+                    String[] questionAndAnswer = line.split(",");
+                    
+                    if (questionAndAnswer[0].equals(question)) {
+                        // Modify the security question answers with new ones
+                        lineList.add(questionAndAnswer[0] + "," + newAnswer);
+                    } else {
+                        lineList.add(line);
+                    }
                 }
             }
 
-            reader.close();
-
-            // Rewrite the file with new answers
-            BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/credentials.csv"));
-            for (String i2 : lineList) {
-                writer.write(i2);
-                writer.newLine();
+            try ( // Rewrite the file with new answers
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectory + "/credentials.csv"))) {
+                for (String i2 : lineList) {
+                    writer.write(i2);
+                    writer.newLine();
+                }
             }
-
-            writer.close();
         } catch (IOException e) {
             System.out.println("An error occurred while changing your Security Questions. Please try again");
             PasswordManager.settingsPage(true);

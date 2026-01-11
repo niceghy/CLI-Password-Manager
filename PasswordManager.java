@@ -233,15 +233,12 @@ public class PasswordManager {
         String option = sc.nextLine();
 
         switch (option) {
-            case "1": // Change master password
+            case "1" -> // Change master password
                 passwordChange();
-                break;
-            case "2": // Change username
+            case "2" -> // Change username
                 usernameChange();
-                break;
-            case "3": // Change security questions
+            case "3" -> // Change security questions
                 changeSecurityQuestions();
-                break;
         }
 
         displayOptions();
@@ -355,31 +352,34 @@ public class PasswordManager {
         String currentPassword = currentUser.decrypt(loginEntry.getValue()[1]);
 
         switch (input) {
-            case 1: // Change item name
+            case 1 -> {
+                // Change item name
                 System.out.print("New Item Name: ");
                 String newItemName = sc.nextLine();
 
                 currentUser.updateLogin(itemName, loginUsername, newItemName, loginUsername, currentPassword);
-                break;
-            case 2: // Change username
+            }
+            case 2 -> {
+                // Change username
                 System.out.print("New Username: ");
                 String newUsername = sc.nextLine();
 
                 currentUser.updateLogin(itemName, loginUsername, itemName, newUsername, currentPassword);
-                break;
-            case 3: // Change password
+            }
+            case 3 -> {
+                // Change password
                 System.out.print("New Password: ");
                 String newPassword = sc.nextLine();
 
                 currentUser.updateLogin(itemName, loginUsername, itemName, loginUsername, newPassword);
-                break;
-            case 4: // Delete login
+            }
+            case 4 -> // Delete login
                 currentUser.deleteLogin(itemName, loginUsername);
-                break;
-            default:
+            default -> {
                 System.out.println("Invalid option");
                 displayOptions();
                 return;
+            }
         }
 
         displayOptions();
@@ -481,23 +481,11 @@ public class PasswordManager {
         String userOption = sc.nextLine();
 
         switch (userOption) {
-            case "1":
-                 viewLogins();
-                break;
-            case "2":
-                createLogin();
-                break;
-            case "3":
-                modifyLogin();
-                break;
-            case "4":
-                passwordGenerator();
-                break;
-            case "5":
-                settingsPage(false);
-                break;
-            default:
-                return;
+            case "1" -> viewLogins();
+            case "2" -> createLogin();
+            case "3" -> modifyLogin();
+            case "4" -> passwordGenerator();
+            case "5" -> settingsPage(false);
         }
     }
 
@@ -541,12 +529,18 @@ public class PasswordManager {
     public static void main(String[] args) {
         loadAllUsers();
 
-        System.out.println("██████   █████  ███████ ███████ ██     ██  ██████  ██████  ██████      ███    ███  █████  ███    ██  █████   ██████  ███████ ██████  \n" + //
-                        "██   ██ ██   ██ ██      ██      ██     ██ ██    ██ ██   ██ ██   ██     ████  ████ ██   ██ ████   ██ ██   ██ ██       ██      ██   ██ \n" + //
-                        "██████  ███████ ███████ ███████ ██  █  ██ ██    ██ ██████  ██   ██     ██ ████ ██ ███████ ██ ██  ██ ███████ ██   ███ █████   ██████  \n" + //
-                        "██      ██   ██      ██      ██ ██ ███ ██ ██    ██ ██   ██ ██   ██     ██  ██  ██ ██   ██ ██  ██ ██ ██   ██ ██    ██ ██      ██   ██ \n" + //
-                        "██      ██   ██ ███████ ███████  ███ ███   ██████  ██   ██ ██████      ██      ██ ██   ██ ██   ████ ██   ██  ██████  ███████ ██   ██ \n" + //
-                        "                                                                                                                                     ");
+        System.out.println("""
+                           \u2588\u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588     \u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588      \u2588\u2588\u2588    \u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588    \u2588\u2588  \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588  
+                           \u2588\u2588   \u2588\u2588 \u2588\u2588   \u2588\u2588 \u2588\u2588      \u2588\u2588      \u2588\u2588     \u2588\u2588 \u2588\u2588    \u2588\u2588 \u2588\u2588   \u2588\u2588 \u2588\u2588   \u2588\u2588     \u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588 \u2588\u2588   \u2588\u2588 \u2588\u2588\u2588\u2588   \u2588\u2588 \u2588\u2588   \u2588\u2588 \u2588\u2588       \u2588\u2588      \u2588\u2588   \u2588\u2588 
+                           \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588  \u2588  \u2588\u2588 \u2588\u2588    \u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588   \u2588\u2588     \u2588\u2588 \u2588\u2588\u2588\u2588 \u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588 \u2588\u2588  \u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588   \u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  
+                           \u2588\u2588      \u2588\u2588   \u2588\u2588      \u2588\u2588      \u2588\u2588 \u2588\u2588 \u2588\u2588\u2588 \u2588\u2588 \u2588\u2588    \u2588\u2588 \u2588\u2588   \u2588\u2588 \u2588\u2588   \u2588\u2588     \u2588\u2588  \u2588\u2588  \u2588\u2588 \u2588\u2588   \u2588\u2588 \u2588\u2588  \u2588\u2588 \u2588\u2588 \u2588\u2588   \u2588\u2588 \u2588\u2588    \u2588\u2588 \u2588\u2588      \u2588\u2588   \u2588\u2588 
+                           \u2588\u2588      \u2588\u2588   \u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588 \u2588\u2588\u2588   \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588   \u2588\u2588 \u2588\u2588\u2588\u2588\u2588\u2588      \u2588\u2588      \u2588\u2588 \u2588\u2588   \u2588\u2588 \u2588\u2588   \u2588\u2588\u2588\u2588 \u2588\u2588   \u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588  \u2588\u2588\u2588\u2588\u2588\u2588\u2588 \u2588\u2588   \u2588\u2588 
+                                                                                                                                                                """ //
+        //
+        //
+        //
+        //
+        );
         System.out.println("This program manages and saves your online credentials");
 
         System.out.println("\n1: Login");
