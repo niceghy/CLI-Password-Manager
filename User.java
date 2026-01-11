@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.security.*;
 import java.security.spec.KeySpec;
 import java.util.*;
-
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -153,7 +152,7 @@ public class User {
         return false;
     }
 
-    // Find a login by item and name, then return the entire login entry
+    // Find a login by item name and username, then return the entire login entry
     public Map.Entry<String, String[]> findLogin(String itemName, String username) {
         String encryptedItemName = encrypt(itemName);
         String encryptedUserName = encrypt(username);
@@ -204,7 +203,7 @@ public class User {
         }
     }
 
-    // Update a login
+    // Updates a login
     public void updateLogin(String oldItemName, String oldUsername, String newItemName, String newUsername, String newPassword) {
         try {
             // Read all logins except the one we're updating
@@ -283,14 +282,15 @@ public class User {
     public String getPasswordHash() { return this.passwordHash; }
     public byte[] getSalt() { return this.salt; }
     public HashMap<String, String[]> getLocalList() { return this.localList; }
+    public Set<String> getSecurityQuestions() { return securityQuestions.keySet(); }
 
-    public boolean checkPassword(String enteredPassword) {
+    public boolean checkPassword(String enteredPassword) { // Check if hashed passwords match
         String hashedPassword = hashPassword(enteredPassword, this.salt);
 
         return hashedPassword.equals(this.passwordHash);
     }
 
-    public boolean checkSecurityQuestion(String question, String answer) {
+    public boolean checkSecurityQuestion(String question, String answer) { // Check answer with security question
         if (!securityQuestions.containsKey(question)) {
             return false;
         }
@@ -298,11 +298,7 @@ public class User {
         return securityQuestions.get(question).equalsIgnoreCase(answer);
     }
 
-    public Set<String> getSecurityQuestions() {
-        return securityQuestions.keySet();
-    }
-
-    public String getSecurityAnswer(String question) {
+    public String getSecurityAnswer(String question) { // Get security answer from question
         try (BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/credentials.csv"))) {
             String line;
 
@@ -396,6 +392,11 @@ public class User {
     }
 
     // Setters
+    public void setMasterPassword(String masterPassword) { this.masterPassword = masterPassword; } // Stores master password in memory
+
+    /*
+    Changes the master passwsord and re-encrypts everything
+    */
     public void changePassword(String newPassword) {
         try {
             ArrayList<String[]> decryptedLogins = new ArrayList<>();
@@ -472,6 +473,9 @@ public class User {
         }
     }
 
+    /*
+    Changes the username
+    */
     public void changeUsername(String newUsername) {
         try { // Replace the username in the credentials.csv file with the new one
             String oldDirectory = userDirectory;
@@ -512,6 +516,9 @@ public class User {
         }
     }
 
+    /*
+    Changes a security question answer
+    */
     public void changeSecurityAnswer(String question, String newAnswer) {
         try { // Replace the security question answers in the credentials.csv file with new ones
             BufferedReader reader = new BufferedReader(new FileReader(userDirectory + "/credentials.csv"));
@@ -544,9 +551,5 @@ public class User {
             System.out.println("An error occurred while changing your Security Questions. Please try again");
             PasswordManager.settingsPage(true);
         }
-    }
-
-    public void setMasterPassword(String masterPassword) { // This stores master password in memory
-        this.masterPassword = masterPassword;
     }
 }

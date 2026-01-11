@@ -94,6 +94,8 @@ public class PasswordManager {
             return;
         } else if (findUser(newUsername) != null) {
             System.out.println("This username is already taken. Try something else");
+            usernameChange();
+            return;
         } else if (newUsername.length() == 0 || newUsername.length() > 15) { // Check username length
             System.out.println("Your Username must be between 1-15 characters");
             usernameChange();
@@ -152,6 +154,8 @@ public class PasswordManager {
             return;
         } else if (findUser(username) != null) {
             System.out.println("This username is already taken. Try something else");
+            accountCreation();
+            return;
         } else if (username.length() == 0 || username.length() > 15) { // Check username length
             System.out.println("Your Username must be between 1-15 characters");
             accountCreation();
@@ -537,28 +541,25 @@ public class PasswordManager {
     public static void main(String[] args) {
         loadAllUsers();
 
-        System.out.println("====PASSWORD MANAGER====");
+        System.out.println("██████   █████  ███████ ███████ ██     ██  ██████  ██████  ██████      ███    ███  █████  ███    ██  █████   ██████  ███████ ██████  \n" + //
+                        "██   ██ ██   ██ ██      ██      ██     ██ ██    ██ ██   ██ ██   ██     ████  ████ ██   ██ ████   ██ ██   ██ ██       ██      ██   ██ \n" + //
+                        "██████  ███████ ███████ ███████ ██  █  ██ ██    ██ ██████  ██   ██     ██ ████ ██ ███████ ██ ██  ██ ███████ ██   ███ █████   ██████  \n" + //
+                        "██      ██   ██      ██      ██ ██ ███ ██ ██    ██ ██   ██ ██   ██     ██  ██  ██ ██   ██ ██  ██ ██ ██   ██ ██    ██ ██      ██   ██ \n" + //
+                        "██      ██   ██ ███████ ███████  ███ ███   ██████  ██   ██ ██████      ██      ██ ██   ██ ██   ████ ██   ██  ██████  ███████ ██   ██ \n" + //
+                        "                                                                                                                                     ");
         System.out.println("This program manages and saves your online credentials");
-        
-        while (true) {
-            System.out.println("\n1: Login");
-            System.out.println("2: Create New Account");
-            System.out.println("\nEnter any other key to close the application");
 
-            System.out.print("\nOption: ");
-            String input = sc.nextLine();
+        System.out.println("\n1: Login");
+        System.out.println("2: Create New Account");
+        System.out.println("\nEnter any other key to close the application");
 
-            if (input.equals("1")) {
-                loginPage();
-                break;
-            } else if (input.equals("2")) {
-                accountCreation();
-                break;
-            } else if (input.equals("3")) {
-                break;
-            } else {
-                break;
-            }
+        System.out.print("\nOption: ");
+        String input = sc.nextLine();
+
+        if (input.equals("1")) {
+            loginPage();
+        } else if (input.equals("2")) {
+            accountCreation();
         }
 
         sc.close();
