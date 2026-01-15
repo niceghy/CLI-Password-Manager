@@ -486,9 +486,10 @@ public class PasswordManager {
             case "3" -> modifyLogin();
             case "4" -> passwordGenerator();
             case "5" -> settingsPage(false);
+            default -> homeScreen();
         }
     }
-
+    
     /*
     Loads all users from their credential files onto a HashMap
     */
@@ -525,6 +526,21 @@ public class PasswordManager {
 
         return null;
     }
+
+    public static void homeScreen() {
+        System.out.println("\n1: Login");
+        System.out.println("2: Create New Account");
+        System.out.println("\nEnter any other key to close the application");
+
+        System.out.print("\nOption: ");
+        String input = sc.nextLine();
+
+        if (input.equals("1")) {
+            loginPage();
+        } else if (input.equals("2")) {
+            accountCreation();
+        }
+    }
     
     public static void main(String[] args) {
         loadAllUsers();
@@ -542,19 +558,7 @@ public class PasswordManager {
         //
         );
         System.out.println("This program manages and saves your online credentials");
-
-        System.out.println("\n1: Login");
-        System.out.println("2: Create New Account");
-        System.out.println("\nEnter any other key to close the application");
-
-        System.out.print("\nOption: ");
-        String input = sc.nextLine();
-
-        if (input.equals("1")) {
-            loginPage();
-        } else if (input.equals("2")) {
-            accountCreation();
-        }
+        homeScreen();
 
         sc.close();
     }
