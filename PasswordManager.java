@@ -13,13 +13,17 @@ public class PasswordManager {
     */
     public static void loginPage() {
         System.out.println("\n====LOGIN====");
-        System.out.println("Forgot Password? Enter \"/resetpassword\"");
+        System.out.println("Enter /exit to exit the login page");
+        System.out.println("Forgot Password? Enter \"/resetpassword\"\n");
 
         System.out.print("Username: ");
         String username = sc.nextLine();
 
         if (username.equalsIgnoreCase("/resetpassword")) {
             resetPassword();
+            return;
+        } else if (username.equalsIgnoreCase("/exit")) {
+            homeScreen();
             return;
         }
 
@@ -29,6 +33,8 @@ public class PasswordManager {
         if (masterPassword.equalsIgnoreCase("/resetpassword")) {
             resetPassword();
             return;
+        } else if (masterPassword.equalsIgnoreCase("/exit")) {
+            homeScreen();
         }
 
         User user = findUser(username);
@@ -60,7 +66,7 @@ public class PasswordManager {
         System.out.print("\nEnter New Password: ");
         String newPassword = sc.nextLine();
 
-        if (newPassword.equalsIgnoreCase("/resetpassword")) {
+        if (newPassword.equalsIgnoreCase("/resetpassword") || newPassword.equalsIgnoreCase("/exit")) {
             System.out.println("This Master Password is unuseable. Try something else");
             passwordChange();
             return;
@@ -88,7 +94,7 @@ public class PasswordManager {
         System.out.print("\nEnter New Username: ");
         String newUsername = sc.nextLine();
 
-        if (newUsername.equalsIgnoreCase("/resetpassword")) {
+        if (newUsername.equalsIgnoreCase("/resetpassword") || newUsername.equalsIgnoreCase("/exit")) {
             System.out.println("This Username is unuseable. Try something else");
             usernameChange();
             return;
@@ -145,12 +151,17 @@ public class PasswordManager {
     */
     public static void accountCreation() { 
         System.out.println("\n=====CREATE ACCOUNT====");
+        System.out.println("Enter /exit to quit account creation");
+
         System.out.print("Username: ");
         String username = sc.nextLine();
 
         if (username.equalsIgnoreCase("/resetpassword")) {
             System.out.println("This Username is unuseable. Try something else");
             accountCreation();
+            return;
+        } else if (username.equalsIgnoreCase("/exit")) {
+            homeScreen();
             return;
         } else if (findUser(username) != null) {
             System.out.println("This username is already taken. Try something else");
@@ -169,6 +180,9 @@ public class PasswordManager {
             System.out.println("This Master Password is unuseable. Try something else");
             accountCreation();
             return;
+        } else if (masterPassword.equalsIgnoreCase("/exit")) {
+            homeScreen();
+            return;
         } else if (masterPassword.length() < 8 || masterPassword.length() > 60) { // Check password length
             System.out.println("Your Master Password must be between 8-60 characters");
             accountCreation();
@@ -181,7 +195,10 @@ public class PasswordManager {
         System.out.println("\n" + question1);
         String cityOfBirth = sc.nextLine();
 
-        if (cityOfBirth.length() == 0 || cityOfBirth.length() > 128) { // Check length of security question answers
+        if (cityOfBirth.equalsIgnoreCase("/exit")) {
+            homeScreen();
+            return;
+        } else if (cityOfBirth.length() == 0 || cityOfBirth.length() > 128) { // Check length of security question answers
             System.out.println("The length of your answer must be between 1-128 characters");
             accountCreation();
             return;
@@ -191,7 +208,10 @@ public class PasswordManager {
         System.out.println("\n" + question2);
         String cityParentsMeet = sc.nextLine();
 
-        if (cityParentsMeet.length() == 0 || cityParentsMeet.length() > 128) { // Check length of security question answers
+        if (cityParentsMeet.equalsIgnoreCase("/exit")) {
+            homeScreen();
+            return;
+        } else if (cityParentsMeet.length() == 0 || cityParentsMeet.length() > 128) { // Check length of security question answers
             System.out.println("The length of your answer must be between 1-128 characters");
             accountCreation();
             return;
@@ -257,7 +277,11 @@ public class PasswordManager {
             System.out.print("Change to: ");
             String newAnswer = sc.nextLine();
 
-            if (newAnswer.length() == 0 || newAnswer.length() > 128) { // Check length of security question answers
+            if (newAnswer.equalsIgnoreCase("/exit")) {
+                System.out.println("This master password answer is unuseable. Please try again");
+                changeSecurityQuestions();
+                return;
+            } else if (newAnswer.length() == 0 || newAnswer.length() > 128) { // Check length of security question answers
                 System.out.println("The length of your answer must be between 1-128 characters");
                 changeSecurityQuestions();
                 return;
@@ -471,10 +495,11 @@ public class PasswordManager {
     public static void displayOptions() {
         System.out.println("\n====MENU====");
         System.out.println("1: View Logins");
-        System.out.println("2: Create New Login");
-        System.out.println("3: Modify a Login");
-        System.out.println("4: Generate Passwords");
-        System.out.println("5: Settings");
+        System.out.println("2: Search Login");
+        System.out.println("3: Create New Login");
+        System.out.println("4: Modify a Login");
+        System.out.println("5: Generate Passwords");
+        System.out.println("6: Settings");
         System.out.println("\nEnter any other key to logout");
 
         System.out.print("\nOption: ");
@@ -482,10 +507,11 @@ public class PasswordManager {
 
         switch (userOption) {
             case "1" -> viewLogins();
-            case "2" -> createLogin();
-            case "3" -> modifyLogin();
-            case "4" -> passwordGenerator();
-            case "5" -> settingsPage(false);
+            case "2" -> searchLogin();
+            case "3" -> createLogin();
+            case "4" -> modifyLogin();
+            case "5" -> passwordGenerator();
+            case "6" -> settingsPage(false);
             default -> homeScreen();
         }
     }
@@ -527,6 +553,35 @@ public class PasswordManager {
         return null;
     }
 
+    /*
+    Searches and finds a login
+    */
+   public static void searchLogin() {
+        System.out.println("\n====LOGIN SEARCH====");
+
+        System.out.print("What is the Item Name: ");
+        String itemName = sc.nextLine();
+
+        System.out.print("What is the Username: ");
+        String username = sc.nextLine();
+
+        Map.Entry<String, String[]> entry = currentUser.findLogin(itemName, username);
+
+        if (entry == null) {
+            System.out.println("Could not find login");
+        } else {
+            System.out.println();
+            System.out.println(currentUser.decrypt(entry.getKey().split(":")[0]));
+            System.out.println("   Username: " + currentUser.decrypt(entry.getValue()[0]));
+            System.out.println("   Password: " + currentUser.decrypt(entry.getValue()[1]));
+        }
+
+        displayOptions();
+   }
+
+    /*
+    Displays the home screen for login and account creation
+    */
     public static void homeScreen() {
         System.out.println("\n1: Login");
         System.out.println("2: Create New Account");
